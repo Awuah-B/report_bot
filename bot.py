@@ -587,13 +587,26 @@ Please add me to a group chat and use the commands there.
         logger.info("Background monitoring stopped")
     
     async def run(self):
-        """Run the bot"""
+        """Run the bot with webhook"""
         try:
             self.start_monitoring()
-            logger.info("Starting NPA Monitor Bot...")
+            logger.info("Starting NPA Monitor Bot with webhook...")
             await self.application.initialize()
             await self.application.start()
-            await self.application.updater.start_polling()
+            # Set webhook URL (Render provides a public URL like https://your-service.onrender.com)
+            webhook_url = f"https://report_bot.onrender.com/{self.bot_token}"
+            await self.application.bot.set_webhook(
+                url=webhook_url,
+                allowed_updates=Update.ALL_TYPES
+            )
+            logger.info(f"Webhook set to {webhook_url}")
+            # Start webhook server
+            await self.application.updater.start_webhook(
+                listen="0.0.0.0",
+                port=8443,
+                url_path=self.bot_token,
+                webhook_url=webhook_url
+            )
             logger.info("Bot is running.")
             try:
                 while True:
@@ -604,6 +617,7 @@ Please add me to a group chat and use the commands there.
             logger.error(f"Error running bot: {e}")
         finally:
             self.stop_monitoring()
+            await self.application.bot.delete_webhook()
             await self.application.updater.stop()
             await self.application.stop()
             await self.application.shutdown()
