@@ -62,3 +62,25 @@
 2025-07-24 17:09:55,963 - utils - INFO - Database engine disposed
 2025-07-24 17:09:55,964 - utils - INFO - Background monitoring stopped
 2025-07-24 17:09:56,648 - utils - INFO - Bot shutdown complete
+2025-07-24 19:16:50,299 - utils - INFO - NPAMonitorBot initialized successfully
+2025-07-24 19:16:50,300 - utils - INFO - Background monitoring started
+2025-07-24 19:16:50,300 - utils - INFO - Starting NPA Monitor Bot with webhook...
+2025-07-24 19:16:50,300 - utils - INFO - Started monitoring loop
+2025-07-24 19:17:01,678 - utils - ERROR - Failed to send notification to group -4858489852: Group migrated to supergroup. New chat id: -1002837585314
+2025-07-24 19:17:01,679 - utils - INFO - Monitoring check completed: 1 new records
+2025-07-24 19:17:01,877 - utils - INFO - Webhook set to https://report_bot.onrender.com/8396776544:AAHIsDD4tfuDMobPGhVzwEPtjWzWaRRmGtQ
+2025-07-24 19:17:01,877 - utils - ERROR - Error running bot: To use `start_webhook`, PTB must be installed via `pip install "python-telegram-bot[webhooks]"`.
+2025-07-24 19:17:01,878 - utils - INFO - Database engine disposed
+2025-07-24 19:17:01,878 - utils - INFO - Background monitoring stopped
+2025-07-24 19:17:02,081 - utils - ERROR - Fatal error: This Updater is not running!
+2025-07-24 19:17:53,327 - utils - INFO - NPAMonitorBot initialized successfully
+2025-07-24 19:17:53,328 - utils - INFO - Background monitoring started
+2025-07-24 19:17:53,328 - utils - INFO - Starting NPA Monitor Bot with webhook...
+2025-07-24 19:17:53,329 - utils - INFO - Started monitoring loop
+2025-07-24 19:17:58,673 - utils - ERROR - Failed to send notification to group -4858489852: Group migrated to supergroup. New chat id: -1002837585314
+2025-07-24 19:17:58,673 - utils - INFO - Monitoring check completed: 1 new records
+2025-07-24 19:17:58,817 - utils - INFO - Webhook set to https://report_bot.onrender.com/8396776544:AAHIsDD4tfuDMobPGhVzwEPtjWzWaRRmGtQ
+2025-07-24 19:17:58,818 - utils - ERROR - Error running bot: To use `start_webhook`, PTB must be installed via `pip install "python-telegram-bot[webhooks]"`.
+2025-07-24 19:17:58,818 - utils - INFO - Database engine disposed
+2025-07-24 19:17:58,819 - utils - INFO - Background monitoring stopped
+2025-07-24 19:17:58,981 - utils - ERROR - Fatal error: This Updater is not running!
