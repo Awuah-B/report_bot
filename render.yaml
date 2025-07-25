@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: report_bot
+    env: python
+    buuildCommmand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: SUPERADMIN_IDS
+        sync: false
+      - key: API_COMPANY_ID
+        sync: false
+      - key: API_ITS_FROM_PERSOL
+        sync: false
+      - key: API_GROUP_BY
+        sync: false
+      - key: API_GROUP_BY1
+        sync: false
+      - key: API_QUERY1
+        sync: false
+      - key: API_QUERY4
+        sync: false
+      - key: API_PIC_HEIGHT
+        sync: false
+      - key: API_PIC_WIEGHT
+        sync: false
+      - key: API_PERIOD_ID
+        sync: false
+      - key: API_USER_ID
+        sync: false
+      - key: API_APP_ID
+        sync: false

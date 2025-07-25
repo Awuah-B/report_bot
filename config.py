@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Configuration module for environment variables
+Configuration module for NPA data fetching application
+Updated for Supabase integration
 """
 
 import os
@@ -11,30 +12,35 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_db_connection_string() -> str:
-    """Get database connection string from environment variables"""
-    required_vars = ['DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_NAME']
-    for var in required_vars:
-        if not os.getenv(var):
-            raise ValueError(f"{var} environment variable is required")
-    db_user = os.getenv('DB_USER')
+    """Get database connection string for Supabase"""
+    # For production (Render), use environment variable
+    db_url = os.getenv('DATABASE_URL')
+    if db_url:
+        return db_url
+
+    # For local development, construct from individual components
+    db_host = os.getenv('DB_HOST', 'db.your-project-ref.supabase.co')
+    db_port = os.getenv('DB_PORT', '5432')
+    db_name = os.getenv('DB_NAME', 'postgres')
+    db_user = os.getenv('DB_USER', 'postgres')
     db_password = os.getenv('DB_PASSWORD')
-    db_host = os.getenv('DB_HOST')
-    db_port = os.getenv('DB_PORT', '5432')  # Default to 5432 if not specified
-    db_name = os.getenv('DB_NAME')
-    default_url = f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
-    return os.getenv('DATABASE_URL', default_url)
+
+    if not db_password:
+        raise ValueError("Databse password not fouund in environment variables")
+    return f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+    
 
 def get_bot_token() -> str:
-    """Get Telegram bot token from environment variable"""
+    """Get Telegram bot token"""
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     if not token:
-        raise ValueError("TELEGRAM_BOT_TOKEN environment variable is required")
+        raise ValueError("Telegram bot token not found in environment variables")
     return token
 
 def get_superadmin_ids() -> Set[str]:
-    """Get superadmin IDs from environment variable"""
-    admin_ids = os.getenv('TELEGRAM_SUPERADMIN_IDS', '')
-    return {admin_id.strip() for admin_id in admin_ids.split(',') if admin_id.strip()}
+    """Get superadmin IDs"""
+    ids = os.getenv('SUPERADMIN_IDS', '')
+    return [id.strip() for id in ids.split(',') if id.strip()]
 
 def get_api_params() -> Dict[str, str]:
     """Get API parameters for DataFetcher from environment variables"""
