@@ -2,7 +2,7 @@
 """
 Telegram Bot for NPA Depot Manager Record Notifications
 Monitors the database every 5 minutes and reports new records
-Enhanced for group chat functionality and executes main.py functionalities on startup and periodically
+Enhanced for robust group chat functionality and executes main.py functionalities
 """
 
 import asyncio
@@ -38,15 +38,25 @@ class GroupChatManager:
         self.load_subscriptions()
     
     def load_subscriptions(self):
-        """Load subscriptions from file"""
+        """Load subscriptions from file with robust error handling"""
         try:
             if os.path.exists(self.storage_file):
                 with open(self.storage_file, 'r') as f:
                     data = json.load(f)
                     self.subscribed_groups = set(data.get('groups', []))
                     self.group_admins = {k: set(v) for k, v in data.get('admins', {}).items()}
+            else:
+                logger.info("No subscriptions file found, starting with empty subscriptions")
+                self.subscribed_groups = set()
+                self.group_admins = {}
+        except json.JSONDecodeError as e:
+            logger.error(f"Corrupted subscriptions file: {e}. Initializing empty subscriptions")
+            self.subscribed_groups = set()
+            self.group_admins = {}
         except Exception as e:
             logger.error(f"Failed to load subscriptions: {e}")
+            self.subscribed_groups = set()
+            self.group_admins = {}
     
     def save_subscriptions(self):
         """Save subscriptions to file"""
@@ -117,17 +127,17 @@ class NPAMonitorBot:
         self.table_generator = TableGenerator()
         self.data_fetcher = DataFetcher()
         
-        # Execute main.py's main function during initialization
+        # Execute main.py during initialization
         try:
             success = main()
             if success:
                 logger.info("main.py functionalities executed successfully during bot initialization")
             else:
                 logger.error("Failed to execute main.py functionalities during bot initialization")
-                asyncio.create_task(self._notify_superadmins("⚠️ Failed to execute main.py functionalities during bot initialization"))
+                asyncio.create_task(self._notify_superadmins("⚠️ Failed to execute main.py functionalities during initialization"))
         except Exception as e:
             logger.error(f"Error executing main.py functionalities: {str(e)}")
-            asyncio.create_task(self._notify_superadmins(f"⚠️ Error executing main.py functionalities during initialization: {str(e)}"))
+            asyncio.create_task(self._notify_superadmins(f"⚠️ Error executing main.py functionalities: {str(e)}"))
         
         # Setup handlers
         self._setup_handlers()
@@ -169,20 +179,33 @@ class NPAMonitorBot:
             if chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]:
                 if chat_member.new_chat_member.status == ChatMember.MEMBER:
                     logger.info(f"Bot added to group: {chat.title} (ID: {chat.id}) by user {user.id} ({user.first_name})")
-                elif chat_member.new_chat_member.status == ChatMember.LEFT:
+                    await self.bot.send_message(
+                        chat_id=chat.id,
+                        text=f"🤖 Bot added to {chat.title}! Use /subscribe to enable notifications (admin only).",
+                        parse_mode=ParseMode.MARKDOWN
+                    )
+                elif chat_member.new_chat_member.status in [ChatMember.LEFT, ChatMember.KICKED]:
                     logger.info(f"Bot removed from group: {chat.title} (ID: {chat.id}) by user {user.id} ({user.first_name})")
                     self.group_manager.unsubscribe_group(str(chat.id))
+                    await self._notify_superadmins(
+                        f"🚪 Bot removed from group: {chat.title} (ID: {chat.id}) by user {user.id} ({user.first_name})"
+                    )
         except Exception as e:
-            logger.error(f"Error tracking chat members: {e}")
+            logger.error(f"Error tracking chat members for chat {update.effective_chat.id}: {e}")
     
-    async def _is_user_admin(self, chat_id: int, user_id: int) -> bool:
-        """Check if user is admin in the chat"""
-        try:
-            chat_member = await self.bot.get_chat_member(chat_id, user_id)
-            return chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.OWNER]
-        except Exception as e:
-            logger.error(f"Error checking admin status: {e}")
-            return False
+    async def _is_user_admin(self, chat_id: int, user_id: int, retries: int = 3) -> bool:
+        """Check if user is admin in the chat with retry logic"""
+        for attempt in range(retries):
+            try:
+                chat_member = await self.bot.get_chat_member(chat_id, user_id)
+                return chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.OWNER]
+            except Exception as e:
+                if attempt < retries - 1:
+                    logger.warning(f"Retrying admin check for user {user_id} in chat {chat_id}: {e}")
+                    await asyncio.sleep(1)
+                else:
+                    logger.error(f"Failed to check admin status for user {user_id} in chat {chat_id}: {e}")
+                    return False
     
     def _is_superadmin(self, user_id: int) -> bool:
         """Check if user is a superadmin"""
@@ -205,7 +228,7 @@ Hello! I'm here to monitor new Depot Manager records from the NPA system for you
 • `/check` - Manual check for new records
 • `/recent` - Show recent records
 • `/stats` - Show monitoring statistics
-• `/download_pdf` - Download latest report in PDF format
+• `/download_pdf` - Download latest report in PDF format (subscribed groups only)
 
 **Admin Note:** Only group administrators can subscribe/unsubscribe the group from notifications.
             """ if chat_type in [ChatType.GROUP, ChatType.SUPERGROUP] else
@@ -234,7 +257,7 @@ Please add me to a group chat and use the commands there.
 • `/stats` - Show monitoring statistics
 • `/subscribe` - Subscribe group to notifications (admin only)
 • `/unsubscribe` - Unsubscribe group (admin only)
-• `/download_pdf` - Download latest report in PDF format
+• `/download_pdf` - Download latest report in PDF format (subscribed groups only)
 • `/help` - Show this help message
             """ if chat_type in [ChatType.GROUP, ChatType.SUPERGROUP] else
             """
@@ -322,7 +345,7 @@ Please add me to a group chat and use the commands there.
         return messages
     
     async def manual_check_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle /check command to search for a specific BRV number across all tables"""
+        """Handle /check command to search for a specific BRV number"""
         if not context.args:
             await update.message.reply_text("❌ Please provide a BRV number to search for (e.g., /check AS496820)")
             return
@@ -411,18 +434,22 @@ Please add me to a group chat and use the commands there.
     
     async def download_pdf_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /download_pdf command to send processed data as PDF"""
-        if update.effective_chat.type not in [ChatType.GROUP, ChatType.SUPERGROUP]:
+        chat = update.effective_chat
+        if chat.type not in [ChatType.GROUP, ChatType.SUPERGROUP]:
             await update.message.reply_text("❌ This command is only available in group chats.")
+            return
+        if not self.group_manager.is_subscribed(str(chat.id)):
+            await update.message.reply_text("❌ This group is not subscribed. Use /subscribe to enable notifications.")
             return
         if not FPDF:
             await update.message.reply_text("❌ PDF generation is not available (FPDF library not installed).")
             return
         try:
-            # Fetch and process data using DataFetcher
             df, error = self.data_fetcher.fetch_data()
             if error:
                 await update.message.reply_text(f"❌ Failed to fetch data: {error}")
                 return
+            logger.info(f"Fetched {len(df)} records for PDF generation")
             processed_df, error = self.data_fetcher.process_data(df)
             if error:
                 await update.message.reply_text(f"❌ Failed to process data: {error}")
@@ -430,8 +457,6 @@ Please add me to a group chat and use the commands there.
             if processed_df.empty:
                 await update.message.reply_text("📭 No processed data found to generate PDF.")
                 return
-            
-            # Generate PDF
             pdf_generator = PDFGenerator()
             title = f"BOST-KUMASI - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             footnote = "Data sourced from NPA Enterprise API. Processed by I.T.S (Persol System Limited). Modified by Awuah."
@@ -439,8 +464,6 @@ Please add me to a group chat and use the commands there.
             if error:
                 await update.message.reply_text(f"❌ Failed to generate PDF: {error}")
                 return
-            
-            # Send PDF
             pdf_file = BytesIO(pdf_data)
             pdf_file.name = f"BOST-KUMASI_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             await update.message.reply_document(
@@ -448,9 +471,9 @@ Please add me to a group chat and use the commands there.
                 filename=pdf_file.name,
                 caption="📄 Latest Processed Records",
             )
-            logger.info(f"PDF report sent to chat {update.effective_chat.id}")
+            logger.info(f"PDF report sent to chat {chat.id}")
         except Exception as e:
-            logger.error(f"Failed to send PDF: {e}")
+            logger.error(f"Failed to send PDF to chat {chat.id}: {e}")
             await update.message.reply_text(f"❌ Failed to send PDF: {str(e)}")
     
     async def stats_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -482,7 +505,6 @@ Please add me to a group chat and use the commands there.
     
     async def list_groups_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /groups command"""
-        if450
         if not self._is_superadmin(update.effective_user.id):
             await update.message.reply_text("❌ This command is for superadmins only.")
             return
@@ -510,24 +532,29 @@ Please add me to a group chat and use the commands there.
             if error:
                 logger.error(f"Failed to fetch data: {error}")
                 return 0
+            logger.info(f"Fetched {len(df)} records from API")
             processed_df, error = self.data_fetcher.process_data(df)
             if error:
                 logger.error(f"Failed to process data: {error}")
                 return 0
+            logger.info(f"Processed {len(processed_df)} records")
             section_dataframes = self.table_generator.split_dataframe_by_sections(processed_df)
+            logger.info(f"Split data into {len(section_dataframes)} sections")
             self.table_generator.populate_tables(section_dataframes)
             new_records = self.table_generator.get_new_depot_manager_records()
             if not new_records.empty:
                 await self._notify_subscribed_groups(new_records)
                 self.last_notification_count = len(new_records)
+                logger.info(f"Notified groups about {len(new_records)} new records")
                 return len(new_records)
+            logger.info("No new records found")
             return 0
         except Exception as e:
             logger.error(f"Error checking for new records: {e}")
             return 0
     
     async def _notify_subscribed_groups(self, new_records: pd.DataFrame):
-        """Send notifications to subscribed groups"""
+        """Send notifications to subscribed groups with rate limiting"""
         subscribed_groups = self.group_manager.get_subscribed_groups()
         if not subscribed_groups:
             logger.info("No subscribed groups to notify")
@@ -536,16 +563,20 @@ Please add me to a group chat and use the commands there.
         for group_id in subscribed_groups:
             try:
                 await self.bot.send_message(
-                    chat_id=int(group_id), 
+                    chat_id=int(group_id),
                     text=notification_message,
                     parse_mode=ParseMode.MARKDOWN
                 )
                 logger.info(f"Notification sent to group {group_id}")
+                await asyncio.sleep(0.1)  # Rate limiting: 10 messages per second
             except Exception as e:
                 logger.error(f"Failed to send notification to group {group_id}: {e}")
                 if "chat not found" in str(e).lower() or "bot was blocked" in str(e).lower():
                     self.group_manager.unsubscribe_group(group_id)
                     logger.info(f"Auto-unsubscribed group {group_id} due to access error")
+                    await self._notify_superadmins(
+                        f"🚫 Auto-unsubscribed group {group_id} due to error: {str(e)}"
+                    )
     
     def _format_notification_message(self, new_records: pd.DataFrame) -> str:
         """Format new records into a notification message"""
@@ -580,7 +611,6 @@ Please add me to a group chat and use the commands there.
             try:
                 self.last_check_time = datetime.now()
                 self.total_checks += 1
-                # Execute main.py functionalities
                 success = main()
                 if success:
                     logger.info("main.py functionalities executed successfully")
@@ -594,7 +624,7 @@ Please add me to a group chat and use the commands there.
                 await self._notify_superadmins(f"⚠️ Error in monitoring loop: {str(e)}")
             await asyncio.sleep(self.monitoring_interval)
         logger.info("Monitoring loop stopped")
-
+    
     def start_monitoring(self):
         """Start monitoring task"""
         if self.monitoring_active:
@@ -619,14 +649,12 @@ Please add me to a group chat and use the commands there.
             logger.info("Starting NPA Monitor Bot with webhook...")
             await self.application.initialize()
             await self.application.start()
-            # Set webhook URL
             webhook_url = f"https://report-bot-cryi.onrender.com/{self.bot_token}"
             await self.application.bot.set_webhook(
                 url=webhook_url,
                 allowed_updates=Update.ALL_TYPES
             )
             logger.info(f"Webhook set to {webhook_url}")
-            # Start webhook server
             await self.application.updater.start_webhook(
                 listen="0.0.0.0",
                 port=8443,
