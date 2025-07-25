@@ -19,10 +19,10 @@ def get_db_connection_string() -> str:
         return db_url
 
     # For local development, construct from individual components
-    db_host = os.getenv('DB_HOST', 'db.your-project-ref.supabase.co')
-    db_port = os.getenv('DB_PORT', '5432')
+    db_host = os.getenv('DB_HOST', 'aws-0-eu-north-1.pooler.supabase.com')
+    db_port = os.getenv('DB_PORT', '6543')
     db_name = os.getenv('DB_NAME', 'postgres')
-    db_user = os.getenv('DB_USER', 'postgres')
+    db_user = os.getenv('DB_USER', 'postgres.aobymozhvggoaffsygot')
     db_password = os.getenv('DB_PASSWORD')
 
     if not db_password:
