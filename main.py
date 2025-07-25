@@ -270,6 +270,37 @@ class TableGenerator:
         record_str = ''.join(str(row.get(col, '')) for col in self.columns)
         return hashlib.md5(record_str.encode()).hexdigest()
     
+    def delete_duplicate_history_records(self, table_name: str) -> Tuple[int, str]:
+        """Delete duplicate records from history table based on record_hash"""
+        if table_name not in self.table_names:
+            return 0, f"Table {table_name} not found"
+        try:
+            with self.engine.connect() as conn:
+                # Count total records before deduplication
+                count_query = text(f"SELECT COUNT(*) FROM {table_name.lower()}_history")
+                total_records = conn.execute(count_query).scalar()
+
+                # Delete duplicates, keeping the most recent record
+                delete_query = text(f"""
+                    DELETE FROM {table_name.lower()}_history
+                    WHERE id IN (
+                        SELECT id FROM (
+                            SELECT id,
+                                   ROW_NUMBER() OVER (PARTITION BY record_hash ORDER BY archived_at DESC) as rn
+                            FROM {table_name.lower()}_history
+                        ) t
+                        WHERE rn > 1
+                    )
+                """)
+                result = conn.execute(delete_query)
+                conn.commit()
+                
+                deleted_count = result.rowcount
+                return deleted_count, None
+        except Exception as e:
+            logger.error(f"Failed to delete duplicates from {table_name}_history: {str(e)}")
+            return 0, f"Failed to delete duplicates: {str(e)}"
+    
     def backup_current_data(self, table_name: str) -> bool:
         """Backup current data to history table"""
         try:

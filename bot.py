@@ -2,12 +2,10 @@
 """
 Telegram Bot for NPA Depot Manager Record Notifications
 Monitors the database every 5 minutes and reports new records
-Enhanced for group chat functionality
+Enhanced for group chat functionality and executes main.py functionalities on startup
 """
 
 import asyncio
-import threading
-import time
 import json
 import os
 from datetime import datetime
@@ -16,7 +14,7 @@ import pandas as pd
 from telegram import Bot, Update, ChatMember
 from telegram.ext import Application, CommandHandler, ContextTypes, ChatMemberHandler
 from telegram.constants import ChatType, ParseMode
-from main import DataFetcher, TableGenerator, PDFGenerator
+from main import DataFetcher, TableGenerator, PDFGenerator, main
 from config import get_bot_token, get_superadmin_ids
 from utils import setup_logging
 from io import BytesIO
@@ -111,7 +109,6 @@ class NPAMonitorBot:
         # Monitoring configuration
         self.monitoring_interval = 300  # 5 minutes
         self.monitoring_active = False
-        self.monitoring_thread = None
         self.last_check_time = None
         self.total_checks = 0
         self.last_notification_count = 0
@@ -119,6 +116,16 @@ class NPAMonitorBot:
         # Data processing components
         self.table_generator = TableGenerator()
         self.data_fetcher = DataFetcher()
+        
+        # Execute main.py's main function during initialization
+        try:
+            success = main()
+            if success:
+                logger.info("main.py functionalities executed successfully during bot initialization")
+            else:
+                logger.error("Failed to execute main.py functionalities during bot initialization")
+        except Exception as e:
+            logger.error(f"Error executing main.py functionalities: {str(e)}")
         
         # Setup handlers
         self._setup_handlers()
@@ -309,8 +316,6 @@ Please add me to a group chat and use the commands there.
         try:
             found_records = []
             for table_name in self.table_generator.table_names:
-                if table_name not in self.table_generator.table_names:
-                    continue
                 try:
                     with self.table_generator.engine.connect() as conn:
                         query = text(f"""
@@ -530,7 +535,6 @@ Please add me to a group chat and use the commands there.
         """Format new records into a notification message"""
         count = len(new_records)
         message = f"""
- shuttle
 **New Depot Manager Records Detected!**
 
 📊 **Total New Records:** {count}
@@ -554,12 +558,16 @@ Please add me to a group chat and use the commands there.
         return message
     
     async def _monitoring_loop(self):
-        """Background monitoring loop"""
         logger.info("Started monitoring loop")
         while self.monitoring_active:
             try:
                 self.last_check_time = datetime.now()
                 self.total_checks += 1
+                success = main()
+                if success:
+                    logger.info("main.py functionalities executed successfully")
+                else:
+                    logger.error("Failed to execute main.py functionalities")
                 new_records_count = await self._check_for_new_records()
                 logger.info(f"Monitoring check completed: {new_records_count} new records")
             except Exception as e:
@@ -579,8 +587,6 @@ Please add me to a group chat and use the commands there.
     def stop_monitoring(self):
         """Stop monitoring task"""
         self.monitoring_active = False
-        if self.monitoring_thread:
-            self.monitoring_thread.join(timeout=5)
         if self.table_generator.engine:
             self.table_generator.engine.dispose()
             logger.info("Database engine disposed")
