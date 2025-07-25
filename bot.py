@@ -124,12 +124,27 @@ class NPAMonitorBot:
                 logger.info("main.py functionalities executed successfully during bot initialization")
             else:
                 logger.error("Failed to execute main.py functionalities during bot initialization")
+                asyncio.create_task(self._notify_superadmins("⚠️ Failed to execute main.py functionalities during bot initialization"))
         except Exception as e:
             logger.error(f"Error executing main.py functionalities: {str(e)}")
+            asyncio.create_task(self._notify_superadmins(f"⚠️ Error executing main.py functionalities: {str(e)}"))
         
         # Setup handlers
         self._setup_handlers()
         logger.info("NPAMonitorBot initialized successfully")
+    
+    async def _notify_superadmins(self, message: str):
+        """Notify superadmins of critical events"""
+        for admin_id in self.superadmin_ids:
+            try:
+                await self.bot.send_message(
+                    chat_id=int(admin_id),
+                    text=message,
+                    parse_mode=ParseMode.MARKDOWN
+                )
+                logger.info(f"Notified superadmin {admin_id}: {message}")
+            except Exception as e:
+                logger.error(f"Failed to notify superadmin {admin_id}: {e}")
     
     def _setup_handlers(self):
         """Setup telegram command handlers"""
@@ -154,6 +169,16 @@ class NPAMonitorBot:
             if chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]:
                 if chat_member.new_chat_member.status == ChatMember.MEMBER:
                     logger.info(f"Bot added to group: {chat.title} (ID: {chat.id}) by user {user.id} ({user.first_name})")
+                    # Optionally auto-subscribe the group
+                    if not self.group_manager.is_subscribed(str(chat.id)):
+                        self.group_manager.subscribe_group(str(chat.id))
+                        self.group_manager.add_admin(str(chat.id), str(user.id))
+                        await self.bot.send_message(
+                            chat_id=chat.id,
+                            text=f"✅ **Group Subscribed Automatically!**\n\n🏷️ **Group:** {chat.title}\n👤 **Subscribed by:** {user.first_name}\n\nUse `/unsubscribe` to stop notifications.",
+                            parse_mode=ParseMode.MARKDOWN
+                        )
+                        logger.info(f"Group {chat.title} ({chat.id}) auto-subscribed by user {user.id}")
                 elif chat_member.new_chat_member.status == ChatMember.LEFT:
                     logger.info(f"Bot removed from group: {chat.title} (ID: {chat.id}) by user {user.id} ({user.first_name})")
                     self.group_manager.unsubscribe_group(str(chat.id))
@@ -558,16 +583,12 @@ Please add me to a group chat and use the commands there.
         return message
     
     async def _monitoring_loop(self):
+        """Background monitoring loop"""
         logger.info("Started monitoring loop")
         while self.monitoring_active:
             try:
                 self.last_check_time = datetime.now()
                 self.total_checks += 1
-                success = main()
-                if success:
-                    logger.info("main.py functionalities executed successfully")
-                else:
-                    logger.error("Failed to execute main.py functionalities")
                 new_records_count = await self._check_for_new_records()
                 logger.info(f"Monitoring check completed: {new_records_count} new records")
             except Exception as e:
@@ -599,7 +620,7 @@ Please add me to a group chat and use the commands there.
             logger.info("Starting NPA Monitor Bot with webhook...")
             await self.application.initialize()
             await self.application.start()
-            # Set webhook URL (Render provides a public URL like https://your-service.onrender.com)
+            # Set webhook URL
             webhook_url = f"https://report-bot-cryi.onrender.com/{self.bot_token}"
             await self.application.bot.set_webhook(
                 url=webhook_url,
@@ -621,6 +642,7 @@ Please add me to a group chat and use the commands there.
                 logger.info("Received shutdown signal")
         except Exception as e:
             logger.error(f"Error running bot: {e}")
+            await self._notify_superadmins(f"⚠️ Bot failed to start: {str(e)}")
         finally:
             self.stop_monitoring()
             await self.application.bot.delete_webhook()
