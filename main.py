@@ -213,7 +213,7 @@ class TableGenerator:
     def connect_to_database(self) -> bool:
         """Establish database connection"""
         try:
-            self.engine = create_engine(self.db_connection_string, pool_size=5, max_overflow=10)
+            self.engine = create_engine(self.db_connection_string, pool_size=15, max_overflow=200)
             with self.engine.connect() as conn:
                 conn.execute(text("SELECT 1"))
             return True

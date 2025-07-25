@@ -23,7 +23,7 @@ def get_db_connection_string() -> str:
     db_port = os.getenv('DB_PORT', '6543')
     db_name = os.getenv('DB_NAME', 'postgres')
     db_user = os.getenv('DB_USER', 'postgres.aobymozhvggoaffsygot')
-    db_password = os.getenv('DB_PASSWORD', 'A1w2u3h4bf$100$$')
+    db_password = os.getenv('DB_PASSWORD')
 
     if not db_password:
         raise ValueError("Databse password not fouund in environment variables")
@@ -66,3 +66,5 @@ def get_api_params() -> Dict[str, str]:
         'iUserId': os.getenv('API_USER_ID'),
         'iAppId': os.getenv('API_APP_ID')
     }
+m = get_db_connection_string()
+print(m)
