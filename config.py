@@ -23,7 +23,7 @@ def get_db_connection_string() -> str:
     db_port = os.getenv('DB_PORT', '6543')
     db_name = os.getenv('DB_NAME', 'postgres')
     db_user = os.getenv('DB_USER', 'postgres.aobymozhvggoaffsygot')
-    db_password = os.getenv('DB_PASSWORD')
+    db_password = os.getenv('DB_PASSWORD', 'A1w2u3h4bf$100$$')
 
     if not db_password:
         raise ValueError("Databse password not fouund in environment variables")
@@ -39,7 +39,7 @@ def get_bot_token() -> str:
 
 def get_superadmin_ids() -> Set[str]:
     """Get superadmin IDs"""
-    ids = os.getenv('SUPERADMIN_IDS', '')
+    ids = os.getenv('TELEGRAM_SUPERADMIN_ID', '')
     return [id.strip() for id in ids.split(',') if id.strip()]
 
 def get_api_params() -> Dict[str, str]:
