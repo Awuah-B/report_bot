@@ -39,7 +39,7 @@ def get_bot_token() -> str:
 
 def get_superadmin_ids() -> Set[str]:
     """Get superadmin IDs"""
-    ids = os.getenv('TELEGRAM_SUPERADMIN_ID', '')
+    ids = os.getenv('TELEGRAM_SUPERADMIN_IDS', '')
     return [id.strip() for id in ids.split(',') if id.strip()]
 
 def get_api_params() -> Dict[str, str]:

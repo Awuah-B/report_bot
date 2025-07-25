@@ -2,3 +2,8 @@
 2025-07-25 12:08:42,360 - utils - INFO - Depot Manager tables: ['depot_manager_history', 'depot_manager', 'depot_manager_new_records']
 2025-07-25 12:09:23,115 - utils - INFO - Connected to: PostgreSQL 17.4 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
 2025-07-25 12:09:23,324 - utils - INFO - Depot Manager tables: ['depot_manager_history', 'depot_manager', 'depot_manager_new_records']
+2025-07-25 12:43:23,192 - utils - ERROR - Connection failed: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (13.48.169.15), port 6543 failed: FATAL:  {:shutdown, :db_termination}
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 12:44:13,763 - utils - INFO - Connected to: PostgreSQL 17.4 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-07-25 12:44:14,176 - utils - INFO - Depot Manager tables: ['depot_manager_history', 'depot_manager', 'depot_manager_new_records']
