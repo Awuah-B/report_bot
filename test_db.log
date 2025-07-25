@@ -1,0 +1,4 @@
+2025-07-25 12:08:41,951 - utils - INFO - Connected to: PostgreSQL 17.4 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-07-25 12:08:42,360 - utils - INFO - Depot Manager tables: ['depot_manager_history', 'depot_manager', 'depot_manager_new_records']
+2025-07-25 12:09:23,115 - utils - INFO - Connected to: PostgreSQL 17.4 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+2025-07-25 12:09:23,324 - utils - INFO - Depot Manager tables: ['depot_manager_history', 'depot_manager', 'depot_manager_new_records']
