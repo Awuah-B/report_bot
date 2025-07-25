@@ -594,7 +594,7 @@ Please add me to a group chat and use the commands there.
             await self.application.initialize()
             await self.application.start()
             # Set webhook URL (Render provides a public URL like https://your-service.onrender.com)
-            webhook_url = f"https://report-bot-9q7f.onrender.com{self.bot_token}"
+            webhook_url = f"https://report-bot-4au6.onrender.com{self.bot_token}"
             await self.application.bot.set_webhook(
                 url=webhook_url,
                 allowed_updates=Update.ALL_TYPES
