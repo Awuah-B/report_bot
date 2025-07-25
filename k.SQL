@@ -283,7 +283,32 @@ CREATE TABLE IF NOT EXISTS depot_manager_new_records (
     record_hash VARCHAR(64),
     detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- Create new records table for marked
+CREATE TABLE IF NOT EXISTS marked (
+    id SERIAL PRIMARY KEY,
+    order_date VARCHAR(50),
+    order_number VARCHAR(100),
+    products VARCHAR(200),
+    volume VARCHAR(50),
+    ex_ref_price VARCHAR(50),
+    brv_number VARCHAR(100),
+    bdc VARCHAR(200),
+    record_hash VARCHAR(64),
+    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
+CREATE TABLE IF NOT EXISTS marked_history (
+    id SERIAL PRIMARY KEY,
+    order_date VARCHAR(50),
+    order_number VARCHAR(100),
+    products VARCHAR(200),
+    volume VARCHAR(50),
+    ex_ref_price VARCHAR(50),
+    brv_number VARCHAR(100),
+    bdc VARCHAR(200),
+    record_hash VARCHAR(64),
+    archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_approved_brv_number ON approved(brv_number);
 CREATE INDEX IF NOT EXISTS idx_depot_manager_brv_number ON depot_manager(brv_number);

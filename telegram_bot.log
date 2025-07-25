@@ -1,0 +1,72 @@
+2025-07-25 16:38:45,021 - utils - ERROR - Failed to connect to database: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:38:45,023 - utils - INFO - main.py functionalities executed successfully during bot initialization
+2025-07-25 16:38:45,023 - utils - INFO - NPAMonitorBot initialized successfully
+2025-07-25 16:38:45,024 - utils - INFO - Background monitoring started
+2025-07-25 16:38:45,024 - utils - INFO - Starting NPA Monitor Bot with webhook...
+2025-07-25 16:38:45,024 - utils - INFO - Started monitoring loop
+2025-07-25 16:38:45,024 - utils - INFO - main.py functionalities executed successfully
+2025-07-25 16:38:49,368 - utils - INFO - Fetched 2729 records from API
+2025-07-25 16:38:49,502 - utils - INFO - Processed 162 records
+2025-07-25 16:38:49,567 - utils - INFO - Split data into 10 sections
+2025-07-25 16:38:50,933 - utils - ERROR - Failed to backup data for Approved: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:38:52,189 - utils - ERROR - Failed to clear data from Approved: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:38:53,418 - utils - ERROR - Failed to insert data into Approved: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:38:54,605 - utils - ERROR - Failed to backup data for BDC_Cancel_Order: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:38:55,875 - utils - ERROR - Failed to clear data from BDC_Cancel_Order: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:38:57,104 - utils - ERROR - Failed to insert data into BDC_Cancel_Order: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:38:58,299 - utils - ERROR - Failed to backup data for BDC_Decline: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:38:59,561 - utils - ERROR - Failed to clear data from BDC_Decline: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:39:00,790 - utils - ERROR - Failed to insert data into BDC_Decline: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:39:02,032 - utils - ERROR - Failed to backup data for BRV_Checked: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:39:03,248 - utils - ERROR - Failed to clear data from BRV_Checked: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:39:04,477 - utils - ERROR - Failed to insert data into BRV_Checked: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:39:05,871 - utils - ERROR - Failed to get existing hashes for Depot_Manager: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:39:07,139 - utils - ERROR - Failed to save new records for Depot_Manager: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:39:08,369 - utils - INFO - Database engine disposed
+2025-07-25 16:39:08,369 - utils - INFO - Background monitoring stopped
+2025-07-25 16:39:08,897 - utils - ERROR - Fatal error: This Updater is not running!

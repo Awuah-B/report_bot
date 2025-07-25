@@ -1,0 +1,12 @@
+2025-07-25 16:35:50,743 - utils - ERROR - Connection failed: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (13.48.169.15), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (13.48.169.15), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:36:56,838 - utils - ERROR - Connection failed: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-25 16:37:48,043 - utils - ERROR - Connection failed: (psycopg2.OperationalError) connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
