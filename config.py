@@ -19,10 +19,10 @@ def get_db_connection_string() -> str:
         return db_url
 
     # For local development, construct from individual components
-    db_host = os.getenv('DB_HOST', 'aws-0-eu-north-1.pooler.supabase.com')
-    db_port = os.getenv('DB_PORT', '5432')
-    db_name = os.getenv('DB_NAME', 'postgres')
-    db_user = os.getenv('DB_USER', 'postgres.yukmsirurrwgadqzxckj')
+    db_host = os.getenv('DB_HOST')
+    db_port = os.getenv('DB_PORT')
+    db_name = os.getenv('DB_NAME')
+    db_user = os.getenv('DB_USER')
     db_password = os.getenv('DB_PASSWORD')
 
     if not db_password:
@@ -66,5 +66,3 @@ def get_api_params() -> Dict[str, str]:
         'iUserId': os.getenv('API_USER_ID'),
         'iAppId': os.getenv('API_APP_ID')
     }
-m = get_db_connection_string()
-print(m)

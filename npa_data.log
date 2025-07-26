@@ -56,3 +56,82 @@ connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), p
 connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), port 6543 failed: FATAL:  Tenant or user not found
 
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-07-26 07:30:10,580 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 07:31:11,449 - utils - ERROR - API request timed out
+2025-07-26 07:31:43,038 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 07:32:08,146 - utils - INFO - Successfully fetched 112 rows from API
+2025-07-26 07:32:08,147 - utils - INFO - Processing DataFrame with 112 rows and 21 columns
+2025-07-26 07:32:08,206 - utils - INFO - Found 5 BOST-KUMASI records
+2025-07-26 07:32:08,218 - utils - INFO - Renamed columns: ['ORDER_DATE', 'ORDER_NUMBER', 'PRODUCTS', 'VOLUME', 'EX_REF_PRICE', 'BRV_NUMBER', 'BDC']
+2025-07-26 07:32:08,250 - utils - INFO - Successfully converted data types
+2025-07-26 07:32:08,250 - utils - INFO - Final processed DataFrame: 4 rows
+2025-07-26 07:32:25,717 - utils - INFO - Table initialization check completed
+2025-07-26 07:32:37,239 - utils - INFO - Table initialization check completed
+2025-07-26 07:32:38,117 - utils - INFO - === Starting NPA Data Processing with Supabase ===
+2025-07-26 07:32:49,694 - utils - INFO - Table initialization check completed
+2025-07-26 07:32:50,573 - utils - INFO - Supabase connection test successful
+2025-07-26 07:32:50,573 - utils - INFO - Successfully connected to Supabase
+2025-07-26 07:32:50,574 - utils - INFO - Fetching data from NPA API...
+2025-07-26 07:32:50,574 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 07:32:53,132 - utils - INFO - Successfully fetched 112 rows from API
+2025-07-26 07:32:53,132 - utils - INFO - Data fetched successfully: 112 rows
+2025-07-26 07:32:53,133 - utils - INFO - Processing fetched data...
+2025-07-26 07:32:53,133 - utils - INFO - Processing DataFrame with 112 rows and 21 columns
+2025-07-26 07:32:53,145 - utils - INFO - Found 5 BOST-KUMASI records
+2025-07-26 07:32:53,149 - utils - INFO - Renamed columns: ['ORDER_DATE', 'ORDER_NUMBER', 'PRODUCTS', 'VOLUME', 'EX_REF_PRICE', 'BRV_NUMBER', 'BDC']
+2025-07-26 07:32:53,153 - utils - INFO - Successfully converted data types
+2025-07-26 07:32:53,155 - utils - INFO - Final processed DataFrame: 4 rows
+2025-07-26 07:32:53,155 - utils - INFO - Data processed successfully: 4 rows
+2025-07-26 07:32:53,155 - utils - INFO - Splitting data into sections...
+2025-07-26 07:32:53,167 - utils - INFO - Data split into 0 sections: []
+2025-07-26 07:32:53,167 - utils - INFO - Populating Supabase tables...
+2025-07-26 07:32:54,310 - utils - INFO - Supabase connection test successful
+2025-07-26 07:32:54,310 - utils - INFO - No data found for table approved
+2025-07-26 07:32:54,310 - utils - INFO - No data found for table bdc_cancel_order
+2025-07-26 07:32:54,310 - utils - INFO - No data found for table bdc_decline
+2025-07-26 07:32:54,310 - utils - INFO - No data found for table brv_checked
+2025-07-26 07:32:54,310 - utils - INFO - No data found for table depot_manager
+2025-07-26 07:32:54,310 - utils - INFO - No data found for table good_standing
+2025-07-26 07:32:54,310 - utils - INFO - No data found for table loaded
+2025-07-26 07:32:54,311 - utils - INFO - No data found for table order_released
+2025-07-26 07:32:54,311 - utils - INFO - No data found for table ordered
+2025-07-26 07:32:54,311 - utils - INFO - No data found for table ppmc_cancel_order
+2025-07-26 07:32:54,311 - utils - INFO - No data found for table depot_manager_decline
+2025-07-26 07:32:54,311 - utils - INFO - No data found for table marked
+2025-07-26 07:32:54,312 - utils - INFO - All tables processed successfully: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
+2025-07-26 07:33:19,973 - utils - INFO - Table statistics: {'approved': 1, 'bdc_cancel_order': 1, 'bdc_decline': 1, 'brv_checked': 1, 'depot_manager': 1, 'good_standing': 1, 'loaded': 1, 'order_released': 1, 'ordered': 1, 'ppmc_cancel_order': 1, 'depot_manager_decline': 1, 'marked': 1}
+2025-07-26 07:33:19,973 - utils - INFO - === NPA Data Processing completed successfully ===
+2025-07-26 07:35:26,301 - utils - INFO - === Starting NPA Data Processing with Supabase ===
+2025-07-26 07:35:38,870 - utils - INFO - Table initialization check completed
+2025-07-26 07:35:40,509 - utils - INFO - Supabase connection test successful
+2025-07-26 07:35:40,509 - utils - INFO - Successfully connected to Supabase
+2025-07-26 07:35:40,510 - utils - INFO - Fetching data from NPA API...
+2025-07-26 07:35:40,510 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 07:35:43,786 - utils - INFO - Successfully fetched 112 rows from API
+2025-07-26 07:35:43,787 - utils - INFO - Data fetched successfully: 112 rows
+2025-07-26 07:35:43,788 - utils - INFO - Processing fetched data...
+2025-07-26 07:35:43,788 - utils - INFO - Processing DataFrame with 112 rows and 21 columns
+2025-07-26 07:35:43,799 - utils - INFO - Found 5 BOST-KUMASI records
+2025-07-26 07:35:43,806 - utils - INFO - Renamed columns: ['ORDER_DATE', 'ORDER_NUMBER', 'PRODUCTS', 'VOLUME', 'EX_REF_PRICE', 'BRV_NUMBER', 'BDC']
+2025-07-26 07:35:43,814 - utils - INFO - Successfully converted data types
+2025-07-26 07:35:43,817 - utils - INFO - Final processed DataFrame: 4 rows
+2025-07-26 07:35:43,817 - utils - INFO - Data processed successfully: 4 rows
+2025-07-26 07:35:43,818 - utils - INFO - Splitting data into sections...
+2025-07-26 07:35:43,821 - utils - INFO - Data split into 0 sections: []
+2025-07-26 07:35:43,821 - utils - INFO - Populating Supabase tables...
+2025-07-26 07:35:44,806 - utils - INFO - Supabase connection test successful
+2025-07-26 07:35:44,806 - utils - INFO - No data found for table approved
+2025-07-26 07:35:44,806 - utils - INFO - No data found for table bdc_cancel_order
+2025-07-26 07:35:44,806 - utils - INFO - No data found for table bdc_decline
+2025-07-26 07:35:44,806 - utils - INFO - No data found for table brv_checked
+2025-07-26 07:35:44,806 - utils - INFO - No data found for table depot_manager
+2025-07-26 07:35:44,807 - utils - INFO - No data found for table good_standing
+2025-07-26 07:35:44,807 - utils - INFO - No data found for table loaded
+2025-07-26 07:35:44,807 - utils - INFO - No data found for table order_released
+2025-07-26 07:35:44,807 - utils - INFO - No data found for table ordered
+2025-07-26 07:35:44,807 - utils - INFO - No data found for table ppmc_cancel_order
+2025-07-26 07:35:44,807 - utils - INFO - No data found for table depot_manager_decline
+2025-07-26 07:35:44,807 - utils - INFO - No data found for table marked
+2025-07-26 07:35:44,807 - utils - INFO - All tables processed successfully: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
+2025-07-26 07:36:02,643 - utils - INFO - Table statistics: {'approved': 1, 'bdc_cancel_order': 1, 'bdc_decline': 1, 'brv_checked': 1, 'depot_manager': 1, 'good_standing': 1, 'loaded': 1, 'order_released': 1, 'ordered': 1, 'ppmc_cancel_order': 1, 'depot_manager_decline': 1, 'marked': 1}
+2025-07-26 07:36:02,643 - utils - INFO - === NPA Data Processing completed successfully ===

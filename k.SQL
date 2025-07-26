@@ -139,6 +139,34 @@ CREATE TABLE IF NOT EXISTS ppmc_cancel_order (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS depot_manager_decline (
+    id SERIAL PRIMARY KEY,
+    order_date VARCHAR(50),
+    order_number VARCHAR(100),
+    products VARCHAR(200),
+    volume VARCHAR(50),
+    ex_ref_price VARCHAR(50),
+    brv_number VARCHAR(100),
+    bdc VARCHAR(200),
+    record_hash VARCHAR(64),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS depot_manager_decline_history (
+    id SERIAL PRIMARY KEY,
+    order_date VARCHAR(50),
+    order_number VARCHAR(100),
+    products VARCHAR(200),
+    volume VARCHAR(50),
+    ex_ref_price VARCHAR(50),
+    brv_number VARCHAR(100),
+    bdc VARCHAR(200),
+    record_hash VARCHAR(64),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create history tables
 CREATE TABLE IF NOT EXISTS approved_history (
     id SERIAL PRIMARY KEY,

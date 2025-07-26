@@ -70,3 +70,45 @@ connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), p
 2025-07-25 16:39:08,369 - utils - INFO - Database engine disposed
 2025-07-25 16:39:08,369 - utils - INFO - Background monitoring stopped
 2025-07-25 16:39:08,897 - utils - ERROR - Fatal error: This Updater is not running!
+2025-07-26 07:37:12,635 - utils - INFO - Table initialization check completed
+2025-07-26 07:37:12,638 - utils - INFO - main.py functionalities executed successfully during bot initialization
+2025-07-26 07:37:12,638 - utils - INFO - NPAMonitorBot initialized successfully with Supabase
+2025-07-26 07:37:13,198 - utils - INFO - Supabase connection test successful
+2025-07-26 07:37:13,198 - utils - INFO - Supabase connection verified successfully
+2025-07-26 07:37:13,198 - utils - INFO - Background monitoring started with Supabase backend
+2025-07-26 07:37:13,198 - utils - INFO - Starting NPA Monitor Bot with webhook and Supabase backend...
+2025-07-26 07:37:13,199 - utils - INFO - Started monitoring loop with Supabase backend
+2025-07-26 07:37:13,199 - utils - INFO - Starting monitoring check #1
+2025-07-26 07:37:13,199 - utils - INFO - main.py functionalities executed successfully
+2025-07-26 07:37:13,199 - utils - INFO - Starting new records check with Supabase...
+2025-07-26 07:37:13,200 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 07:37:14,818 - utils - INFO - Successfully fetched 112 rows from API
+2025-07-26 07:37:14,819 - utils - INFO - Fetched 112 records from API
+2025-07-26 07:37:14,819 - utils - INFO - Processing DataFrame with 112 rows and 21 columns
+2025-07-26 07:37:14,837 - utils - INFO - Found 5 BOST-KUMASI records
+2025-07-26 07:37:14,846 - utils - INFO - Renamed columns: ['ORDER_DATE', 'ORDER_NUMBER', 'PRODUCTS', 'VOLUME', 'EX_REF_PRICE', 'BRV_NUMBER', 'BDC']
+2025-07-26 07:37:14,864 - utils - INFO - Successfully converted data types
+2025-07-26 07:37:14,879 - utils - INFO - Final processed DataFrame: 4 rows
+2025-07-26 07:37:14,880 - utils - INFO - Processed 4 records
+2025-07-26 07:37:14,896 - utils - INFO - Split data into 0 sections
+2025-07-26 07:37:15,497 - utils - INFO - Supabase connection test successful
+2025-07-26 07:37:15,498 - utils - INFO - No data found for table approved
+2025-07-26 07:37:15,498 - utils - INFO - No data found for table bdc_cancel_order
+2025-07-26 07:37:15,498 - utils - INFO - No data found for table bdc_decline
+2025-07-26 07:37:15,498 - utils - INFO - No data found for table brv_checked
+2025-07-26 07:37:15,498 - utils - INFO - No data found for table depot_manager
+2025-07-26 07:37:15,498 - utils - INFO - No data found for table good_standing
+2025-07-26 07:37:15,499 - utils - INFO - No data found for table loaded
+2025-07-26 07:37:15,499 - utils - INFO - No data found for table order_released
+2025-07-26 07:37:15,499 - utils - INFO - No data found for table ordered
+2025-07-26 07:37:15,499 - utils - INFO - No data found for table ppmc_cancel_order
+2025-07-26 07:37:15,499 - utils - INFO - No data found for table depot_manager_decline
+2025-07-26 07:37:15,499 - utils - INFO - No data found for table marked
+2025-07-26 07:37:15,499 - utils - INFO - Successfully populated tables: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
+2025-07-26 07:37:16,080 - utils - INFO - No new records found
+2025-07-26 07:37:16,080 - utils - INFO - Monitoring check completed: 0 new records
+2025-07-26 07:37:26,640 - utils - INFO - Webhook set to https://report-bot-01yl.onrender.com/8396776544:AAHIsDD4tfuDMobPGhVzwEPtjWzWaRRmGtQ
+2025-07-26 07:37:27,362 - utils - INFO - Bot is running with Supabase backend.
+2025-07-26 07:37:29,611 - utils - INFO - Notified superadmin 987905940 with message: 🚀 NPA Monitor Bot started successfully with Supabase backend!
+2025-07-26 07:38:33,075 - utils - INFO - Background monitoring stopped
+2025-07-26 07:38:34,060 - utils - INFO - Bot shutdown complete
