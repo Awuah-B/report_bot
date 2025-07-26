@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
 """
-Script to request data from the NPA API and populate Supabase tables
-Enhanced with comparison functionality to track new records
-Migrated from PostgreSQL to Supabase for better reliability and scalability
+Enhanced NPA Data Processing Script with Supabase Integration
+Features:
+- Async/await pattern for better performance
+- Improved error handling
+- Better logging
+- Integration with new config system
 """
 
-import requests
+import asyncio
 import pandas as pd
 import datetime
 from io import BytesIO
 import hashlib
-from config import get_api_params
-from utils import setup_logging
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 import traceback
+import aiohttp
+
+from config import CONFIG
+from utils import setup_logging
 from supabase_handler import SupabaseTableGenerator
 
 try:
@@ -24,52 +29,62 @@ except ImportError:
 logger = setup_logging('npa_data.log')
 
 class DataFetcher:
-    """Handles data fetching and processing from the API"""
-
+    """Async data fetcher with improved error handling"""
+    
     def __init__(self):
         self.today = datetime.datetime.now()
         self.yesterday = self.today - datetime.timedelta(days=1)
         self.date_format = "%d-%m-%Y"
+        self.timeout = aiohttp.ClientTimeout(total=60)
     
-    def fetch_data(self) -> Tuple[pd.DataFrame, str]:
-        """Fetch data from the API and return as DataFrame"""
+    async def fetch_data(self) -> Tuple[Optional[pd.DataFrame], Optional[str]]:
+        """Fetch data from API with async requests"""
         try:
-            # Get static parameters from .env via config
-            params = get_api_params()
-            # Add dynamic date parameters
-            params['strQuery2'] = self.yesterday.strftime(self.date_format)
-            params['strQuery3'] = self.today.strftime(self.date_format)
+            params = {
+                'lngCompanyId': CONFIG.api.company_id,
+                'szITSfromPersol': CONFIG.api.its_from_persol,
+                'strGroupBy': CONFIG.api.group_by,
+                'strGroupBy1': CONFIG.api.group_by1,
+                'strQuery1': CONFIG.api.query1,
+                'strQuery2': self.yesterday.strftime(self.date_format),
+                'strQuery3': self.today.strftime(self.date_format),
+                'strQuery4': CONFIG.api.query4,
+                'strPicHeight': CONFIG.api.pic_height,
+                'strPicWeight': CONFIG.api.pic_weight,
+                'intPeriodID': CONFIG.api.period_id,
+                'iUserId': CONFIG.api.user_id,
+                'iAppId': CONFIG.api.app_id
+            }
             
-            logger.info(f"Fetching data for date range: {params['strQuery2']} to {params['strQuery3']}")
+            logger.info(f"Fetching data for {params['strQuery2']} to {params['strQuery3']}")
             
             headers = {
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
                 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
             }
             
-            response = requests.get(
-                "https://iml.npa-enterprise.com/NPAAPILIVE/Home/ExportDailyOrderReport",
-                headers=headers,
-                params=params,
-                timeout=60  # Increased timeout for better reliability
-            )
-            response.raise_for_status()
-            
-            # Read Excel data
-            df = pd.read_excel(BytesIO(response.content))
-            
-            if df.empty:
-                logger.warning("Received empty data from API")
-                return None, "Received empty data from API"
-            
-            logger.info(f"Successfully fetched {len(df)} rows from API")
-            return df, None
-            
-        except requests.exceptions.Timeout:
+            async with aiohttp.ClientSession(timeout=self.timeout) as session:
+                async with session.get(
+                    "https://iml.npa-enterprise.com/NPAAPILIVE/Home/ExportDailyOrderReport",
+                    headers=headers,
+                    params=params
+                ) as response:
+                    response.raise_for_status()
+                    content = await response.read()
+                    
+                    df = pd.read_excel(BytesIO(content))
+                    if df.empty:
+                        logger.warning("Received empty data from API")
+                        return None, "Received empty data from API"
+                    
+                    logger.info(f"Fetched {len(df)} rows from API")
+                    return df, None
+                    
+        except asyncio.TimeoutError:
             error_msg = "API request timed out"
             logger.error(error_msg)
             return None, error_msg
-        except requests.exceptions.RequestException as e:
+        except aiohttp.ClientError as e:
             error_msg = f"API request failed: {str(e)}"
             logger.error(error_msg)
             return None, error_msg
@@ -79,91 +94,18 @@ class DataFetcher:
             logger.error(f"Traceback: {traceback.format_exc()}")
             return None, error_msg
         
-    def process_data(self, df) -> Tuple[pd.DataFrame, str]:
-        """Process and clean the DataFrame"""
+    async def process_data(self, df: pd.DataFrame) -> Tuple[Optional[pd.DataFrame], Optional[str]]:
+        """Process and clean DataFrame with better validation"""
         try:
             if df is None or df.empty:
                 return None, "No data to process"
             
-            logger.info(f"Processing DataFrame with {len(df)} rows and {len(df.columns)} columns")
+            logger.info(f"Processing {len(df)} rows, {len(df.columns)} columns")
             
-            # Remove header rows (first 7 rows are usually headers)
-            df = df.iloc[7:].copy()
-            
-            # Convert NaN to empty strings and clean data
-            df = df.astype(str).replace('nan', '', regex=True)
-            
-            # Remove completely empty rows
-            df = df[~df.apply(lambda row: all(val.strip() == '' for val in row), axis=1)]
-            
-            # Remove completely empty columns
-            df = df.loc[:, ~df.apply(lambda col: all(val.strip() == '' for val in col), axis=0)]
-            
-            # Remove rows containing totals
-            df = df[~df.apply(lambda row: any('Total #' in str(val) for val in row), axis=1)]
-            
-            # Filter for BOST-KUMASI records
-            last_column_name = df.columns[-1]
-            mask = df.apply(lambda row: any(
-                "BOST-KUMASI" in str(val) or "BOST - KUMASI" in str(val)
-                for val in row
-            ), axis=1) | df[last_column_name].str.strip().eq('')
-            
-            if not mask.any():
-                logger.warning("No BOST-KUMASI records found in data")
-                return None, "No BOST-KUMASI records found"
-            
-            df = df[mask]
-            
-            if df.empty:
-                logger.warning("No records remain after BOST-KUMASI filtering")
-                return None, "No BOST-KUMASI records found"
-            
-            logger.info(f"Found {len(df)} BOST-KUMASI records")
-            
-            # Drop unnecessary columns
-            columns_to_drop = ['Unnamed: 6', 'Unnamed: 19', 'Unnamed: 20']
-            df = df.drop(columns=[col for col in columns_to_drop if col in df.columns], errors='ignore')
-            
-            # Handle special single-cell rows (section headers)
-            first_col = df.columns[0]
-            mask = df.apply(lambda row: (row != '').sum() == 1 and row[first_col] != '', axis=1)
-            if mask.any():
-                special_rows = df[mask].copy().drop_duplicates(subset=[first_col], keep='first')
-                df = pd.concat([df[~mask], special_rows]).sort_index()
-            
-            # Rename columns to standardized names
-            columns = {
-                'Unnamed: 0': 'ORDER_DATE',
-                'Unnamed: 2': 'ORDER_NUMBER',
-                'Unnamed: 5': 'PRODUCTS',
-                'Unnamed: 9': 'VOLUME',
-                'Unnamed: 10': 'EX_REF_PRICE',
-                'Unnamed: 12': 'BRV_NUMBER',
-                'Unnamed: 15': 'BDC'
-            }
-            
-            available_columns = [col for col in columns.keys() if col in df.columns]
-            df = df[available_columns].rename(columns=columns)
-            
-            logger.info(f"Renamed columns: {list(df.columns)}")
-            
-            # Convert data types to match database schema
-            try:
-                df['ORDER_DATE'] = pd.to_datetime(df['ORDER_DATE'], errors='coerce')
-                df['VOLUME'] = pd.to_numeric(df['VOLUME'], errors='coerce').astype('Int64')
-                df['EX_REF_PRICE'] = pd.to_numeric(df['EX_REF_PRICE'], errors='coerce').astype(float)
-                df['ORDER_NUMBER'] = df['ORDER_NUMBER'].astype(str)
-                df['PRODUCTS'] = df['PRODUCTS'].astype(str)
-                df['BRV_NUMBER'] = df['BRV_NUMBER'].astype(str)
-                df['BDC'] = df['BDC'].astype(str)
-                
-                logger.info("Successfully converted data types")
-            except Exception as e:
-                logger.warning(f"Error converting data types: {str(e)}")
-            
-            # Remove any remaining empty or invalid rows
-            df = df.dropna(how='all')
+            # Clean and filter data
+            df = self._clean_data(df)
+            df = self._filter_bost_kumasi(df)
+            df = self._transform_columns(df)
             
             logger.info(f"Final processed DataFrame: {len(df)} rows")
             return df, None
@@ -173,206 +115,227 @@ class DataFetcher:
             logger.error(error_msg)
             logger.error(f"Traceback: {traceback.format_exc()}")
             return None, error_msg
+    
+    def _clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Initial data cleaning steps"""
+        # Remove header rows and empty rows/columns
+        df = df.iloc[7:].copy()
+        df = df.astype(str).replace('nan', '', regex=True)
+        df = df[~df.apply(lambda row: all(val.strip() == '' for val in row), axis=1)]
+        df = df.loc[:, ~df.apply(lambda col: all(val.strip() == '' for val in col), axis=0)]
+        df = df[~df.apply(lambda row: any('Total #' in str(val) for val in row), axis=1)]
+        return df
+    
+    def _filter_bost_kumasi(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Filter for BOST-KUMASI records"""
+        last_col = df.columns[-1]
+        mask = df.apply(lambda row: any(
+            "BOST-KUMASI" in str(val) or "BOST - KUMASI" in str(val)
+            for val in row
+        ), axis=1) | df[last_col].str.strip().eq('')
+        
+        if not mask.any():
+            raise ValueError("No BOST-KUMASI records found")
+        
+        return df[mask]
+    
+    def _transform_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Transform and standardize columns"""
+        # Drop unnecessary columns
+        cols_to_drop = ['Unnamed: 6', 'Unnamed: 19', 'Unnamed: 20']
+        df = df.drop(columns=[col for col in cols_to_drop if col in df.columns], errors='ignore')
+        
+        # Handle section headers
+        first_col = df.columns[0]
+        mask = df.apply(lambda row: (row != '').sum() == 1 and row[first_col] != '', axis=1)
+        if mask.any():
+            special_rows = df[mask].copy().drop_duplicates(subset=[first_col], keep='first')
+            df = pd.concat([df[~mask], special_rows]).sort_index()
+        
+        # Standardize column names and types
+        column_map = {
+            'Unnamed: 0': 'ORDER_DATE',
+            'Unnamed: 2': 'ORDER_NUMBER',
+            'Unnamed: 5': 'PRODUCTS',
+            'Unnamed: 9': 'VOLUME',
+            'Unnamed: 10': 'EX_REF_PRICE',
+            'Unnamed: 12': 'BRV_NUMBER',
+            'Unnamed: 15': 'BDC'
+        }
+        
+        df = df.rename(columns={k: v for k, v in column_map.items() if k in df.columns})
+        
+        # Convert data types
+        df['ORDER_DATE'] = pd.to_datetime(df['ORDER_DATE'], format='%d-%m-%Y', errors='coerce')
+        df['VOLUME'] = pd.to_numeric(df['VOLUME'], errors='coerce').astype('Int64')
+        df['EX_REF_PRICE'] = pd.to_numeric(df['EX_REF_PRICE'], errors='coerce').astype(float)
+        
+        for col in ['ORDER_NUMBER', 'PRODUCTS', 'BRV_NUMBER', 'BDC']:
+            if col in df.columns:
+                df[col] = df[col].astype(str)
+        
+        return df.dropna(how='all')
+
 
 class PDFGenerator:
-    """Handles PDF generation from DataFrame"""
+    """Enhanced PDF generator with better formatting"""
     
     def __init__(self):
         self.font = "Arial"
+        self.max_col_width = 40  # mm
+        self.max_cell_chars = 20
         
-    def generate(self, df, title, footnote):
-        """Generate PDF from DataFrame"""
+    async def generate(self, df: pd.DataFrame, title: str, footnote: str) -> Tuple[Optional[bytes], Optional[str]]:
+        """Generate PDF asynchronously"""
+        if not FPDF:
+            return None, "FPDF library not installed"
+            
         try:
-            if df is None or df.empty:
-                return None, "No data available for PDF generation"
-            
-            if not FPDF:
-                return None, "FPDF library not installed"
-            
-            logger.info(f"Generating PDF with {len(df)} records")
-            
             pdf = FPDF(orientation='L', unit='mm', format='A4')
             pdf.set_auto_page_break(auto=True, margin=15)
             pdf.add_page()
             
-            # Add title
-            pdf.set_font(self.font, 'B', 16)
-            pdf.cell(0, 10, title, ln=True, align='C')
-            pdf.ln(10)
+            self._add_title(pdf, title)
+            self._add_headers(pdf, df.columns)
+            self._add_data_rows(pdf, df)
             
-            # Calculate column widths
-            pdf.set_font(self.font, size=8)
-            page_width = pdf.w - 20
-            num_cols = len(df.columns)
-            col_width = page_width / num_cols
-            
-            col_widths = [min(col_width, 40) for _ in df.columns]
-            
-            # Add headers
-            pdf.set_font(self.font, 'B', 8)
-            for col, width in zip(df.columns, col_widths):
-                col_text = str(col)[:15] + "..." if len(str(col)) > 15 else str(col)
-                pdf.cell(width, 8, col_text, border=1, align='C')
-            pdf.ln()
-            
-            # Add data rows
-            pdf.set_font(self.font, size=7)
-            for _, row in df.iterrows():
-                # Check if we need a new page
-                if pdf.get_y() + 8 > pdf.h - 15:
-                    pdf.add_page()
-                    # Re-add headers on new page
-                    pdf.set_font(self.font, 'B', 8)
-                    for col, width in zip(df.columns, col_widths):
-                        col_text = str(col)[:15] + "..." if len(str(col)) > 15 else str(col)
-                        pdf.cell(width, 8, col_text, border=1, align='C')
-                    pdf.ln()
-                    pdf.set_font(self.font, size=7)
-                
-                # Add data cells
-                for col, width in zip(df.columns, col_widths):
-                    cell_value = row[col]
-                    if pd.isna(cell_value):
-                        cell_text = ""
-                    else:
-                        cell_text = str(cell_value)[:20] + "..." if len(str(cell_value)) > 20 else str(cell_value)
-                    pdf.cell(width, 8, cell_text, border=1)
-                pdf.ln()
-            
-            # Add footnote
             if footnote:
-                pdf.set_y(-20)
-                pdf.set_font(self.font, 'I', 7)
-                pdf.multi_cell(0, 6, footnote, align='C')
+                self._add_footnote(pdf, footnote)
             
-            # Generate PDF output
-            pdf_output = BytesIO()
-            pdf_string = pdf.output(dest='S')
-            
-            if isinstance(pdf_string, str):
-                pdf_output.write(pdf_string.encode('utf-8'))
-            else:
-                pdf_output.write(pdf_string)
-            
-            pdf_output.seek(0)
-            logger.info("PDF generated successfully")
-            return pdf_output.getvalue(), None
+            return pdf.output(dest='S').encode('latin1') if isinstance(pdf.output(dest='S'), str) else pdf.output(dest='S'), None
             
         except Exception as e:
             error_msg = f"PDF generation failed: {str(e)}"
             logger.error(error_msg)
-            logger.error(f"Traceback: {traceback.format_exc()}")
             return None, error_msg
+    
+    def _add_title(self, pdf: FPDF, title: str) -> None:
+        """Add title to PDF"""
+        pdf.set_font(self.font, 'B', 16)
+        pdf.cell(0, 10, title, ln=True, align='C')
+        pdf.ln(10)
+    
+    def _add_headers(self, pdf: FPDF, columns: pd.Index) -> None:
+        """Add column headers"""
+        col_widths = self._calculate_column_widths(pdf, columns)
+        pdf.set_font(self.font, 'B', 8)
+        
+        for col, width in zip(columns, col_widths):
+            col_text = str(col)[:15] + "..." if len(str(col)) > 15 else str(col)
+            pdf.cell(width, 8, col_text, border=1, align='C')
+        pdf.ln()
+    
+    def _add_data_rows(self, pdf: FPDF, df: pd.DataFrame) -> None:
+        """Add data rows to PDF"""
+        col_widths = self._calculate_column_widths(pdf, df.columns)
+        pdf.set_font(self.font, size=7)
+        
+        for _, row in df.iterrows():
+            if pdf.get_y() + 8 > pdf.h - 15:
+                pdf.add_page()
+                self._add_headers(pdf, df.columns)
+                
+            for col, width in zip(df.columns, col_widths):
+                cell_value = row[col]
+                cell_text = "" if pd.isna(cell_value) else str(cell_value)[:self.max_cell_chars]
+                pdf.cell(width, 8, cell_text, border=1)
+            pdf.ln()
+    
+    def _add_footnote(self, pdf: FPDF, footnote: str) -> None:
+        """Add footnote to PDF"""
+        pdf.set_y(-20)
+        pdf.set_font(self.font, 'I', 7)
+        pdf.multi_cell(0, 6, footnote, align='C')
+    
+    def _calculate_column_widths(self, pdf: FPDF, columns: pd.Index) -> List[float]:
+        """Calculate optimal column widths"""
+        page_width = pdf.w - 20
+        num_cols = len(columns)
+        base_width = min(page_width / num_cols, self.max_col_width)
+        return [base_width] * num_cols
 
-def export_csv():
-    """Export CSV with comprehensive error handling"""
+
+async def export_csv() -> Tuple[Optional[bytes], Optional[str]]:
+    """Export data to CSV with async processing"""
     try:
         logger.info("Starting CSV export")
         
         fetcher = DataFetcher()
-        df, error = fetcher.fetch_data()
+        df, error = await fetcher.fetch_data()
         if error:
-            logger.error(f"Failed to fetch data for CSV: {error}")
             return None, error
         
-        processed_df, error = fetcher.process_data(df)
+        processed_df, error = await fetcher.process_data(df)
         if error:
-            logger.error(f"Failed to process data for CSV: {error}")
             return None, error
         
-        csv_output = BytesIO()
-        processed_df.to_csv(csv_output, index=False)
-        csv_output.seek(0)
-        
-        logger.info(f"CSV exported successfully with {len(processed_df)} records")
-        return csv_output.getvalue(), None
+        csv_data = processed_df.to_csv(index=False).encode('utf-8')
+        logger.info(f"Exported {len(processed_df)} records to CSV")
+        return csv_data, None
         
     except Exception as e:
         error_msg = f"CSV export failed: {str(e)}"
         logger.error(error_msg)
-        logger.error(f"Traceback: {traceback.format_exc()}")
         return None, error_msg
 
-def main():
-    """Main execution function with Supabase integration"""
+
+async def main() -> bool:
+    """Async main execution function"""
     try:
-        logger.info("=== Starting NPA Data Processing with Supabase ===")
+        logger.info("=== Starting NPA Data Processing ===")
         
         # Initialize components
         fetcher = DataFetcher()
         table_generator = SupabaseTableGenerator()
         
-        # Test Supabase connection
-        if not table_generator.connect_to_database():
-            error_msg = "Failed to connect to Supabase database"
-            logger.error(error_msg)
+        # Test connection
+        if not await table_generator.connect_to_database():
+            logger.error("Failed to connect to Supabase")
             return False
         
-        logger.info("Successfully connected to Supabase")
-        
-        # Fetch data from API
-        logger.info("Fetching data from NPA API...")
-        df, error = fetcher.fetch_data()
+        # Fetch and process data
+        logger.info("Fetching data from API...")
+        df, error = await fetcher.fetch_data()
         if error:
-            logger.error(f"Failed to fetch data: {error}")
+            logger.error(f"Data fetch failed: {error}")
             return False
         
-        logger.info(f"Data fetched successfully: {len(df)} rows")
-        
-        # Process the data
-        logger.info("Processing fetched data...")
-        processed_df, error = fetcher.process_data(df)
+        logger.info("Processing data...")
+        processed_df, error = await fetcher.process_data(df)
         if error:
-            logger.error(f"Failed to process data: {error}")
+            logger.error(f"Data processing failed: {error}")
             return False
         
-        logger.info(f"Data processed successfully: {len(processed_df)} rows")
-        
-        # Split data into sections
+        # Split and populate tables
         logger.info("Splitting data into sections...")
-        section_dataframes = table_generator.split_dataframe_by_sections(processed_df)
-        logger.info(f"Data split into {len(section_dataframes)} sections: {list(section_dataframes.keys())}")
+        sections = table_generator.split_dataframe_by_sections(processed_df)
         
-        # Populate Supabase tables
         logger.info("Populating Supabase tables...")
-        results = table_generator.populate_tables(section_dataframes)
+        results = await table_generator.populate_tables(sections)
         
         # Check results
-        successful_tables = [table for table, success in results.items() if success]
-        failed_tables = [table for table, success in results.items() if not success]
-        
+        failed_tables = [t for t, success in results.items() if not success]
         if failed_tables:
-            logger.error(f"Failed to process tables: {failed_tables}")
-            logger.info(f"Successfully processed tables: {successful_tables}")
+            logger.error(f"Failed tables: {failed_tables}")
             return False
         
-        logger.info(f"All tables processed successfully: {successful_tables}")
-        
-        # Get statistics
-        try:
-            stats = table_generator.get_table_stats()
-            logger.info(f"Table statistics: {stats}")
-        except Exception as e:
-            logger.warning(f"Could not get table statistics: {str(e)}")
-        
-        logger.info("=== NPA Data Processing completed successfully ===")
+        logger.info("=== Processing completed successfully ===")
         return True
         
     except Exception as e:
-        error_msg = f"Unexpected error in main execution: {str(e)}"
-        logger.error(error_msg)
+        logger.error(f"Unexpected error: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         return False
 
+
 if __name__ == "__main__":
     try:
-        success = main()
+        success = asyncio.run(main())
         if success:
-            print("✅ NPA Data processing completed successfully")
+            print("✅ Processing completed successfully")
             exit(0)
-        else:
-            print("❌ NPA Data processing failed")
-            exit(1)
+        print("❌ Processing failed")
+        exit(1)
     except KeyboardInterrupt:
         logger.info("Process interrupted by user")
         print("⚠️ Process interrupted")

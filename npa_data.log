@@ -135,3 +135,35 @@ connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), p
 2025-07-26 07:35:44,807 - utils - INFO - All tables processed successfully: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
 2025-07-26 07:36:02,643 - utils - INFO - Table statistics: {'approved': 1, 'bdc_cancel_order': 1, 'bdc_decline': 1, 'brv_checked': 1, 'depot_manager': 1, 'good_standing': 1, 'loaded': 1, 'order_released': 1, 'ordered': 1, 'ppmc_cancel_order': 1, 'depot_manager_decline': 1, 'marked': 1}
 2025-07-26 07:36:02,643 - utils - INFO - === NPA Data Processing completed successfully ===
+2025-07-26 11:33:43,154 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 11:33:46,239 - utils - INFO - Successfully fetched 146 rows from API
+2025-07-26 11:33:46,240 - utils - INFO - Processing DataFrame with 146 rows and 21 columns
+2025-07-26 11:33:46,256 - utils - INFO - Found 9 BOST-KUMASI records
+2025-07-26 11:33:46,267 - utils - INFO - Renamed columns: ['ORDER_DATE', 'ORDER_NUMBER', 'PRODUCTS', 'VOLUME', 'EX_REF_PRICE', 'BRV_NUMBER', 'BDC']
+2025-07-26 11:33:46,272 - utils - INFO - Successfully converted data types
+2025-07-26 11:33:46,273 - utils - INFO - Final processed DataFrame: 7 rows
+2025-07-26 11:33:59,566 - utils - INFO - Table initialization check completed
+2025-07-26 11:34:10,123 - utils - INFO - Table initialization check completed
+2025-07-26 11:34:10,778 - utils - INFO - === Starting NPA Data Processing with Supabase ===
+2025-07-26 11:34:19,150 - utils - INFO - Table initialization check completed
+2025-07-26 11:34:19,811 - utils - INFO - Supabase connection test successful
+2025-07-26 11:34:19,811 - utils - INFO - Successfully connected to Supabase
+2025-07-26 11:34:19,811 - utils - INFO - Fetching data from NPA API...
+2025-07-26 11:34:19,812 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 11:34:22,134 - utils - INFO - Successfully fetched 145 rows from API
+2025-07-26 11:34:22,134 - utils - INFO - Data fetched successfully: 145 rows
+2025-07-26 11:34:22,134 - utils - INFO - Processing fetched data...
+2025-07-26 11:34:22,134 - utils - INFO - Processing DataFrame with 145 rows and 21 columns
+2025-07-26 11:34:22,144 - utils - INFO - Found 8 BOST-KUMASI records
+2025-07-26 11:34:22,148 - utils - INFO - Renamed columns: ['ORDER_DATE', 'ORDER_NUMBER', 'PRODUCTS', 'VOLUME', 'EX_REF_PRICE', 'BRV_NUMBER', 'BDC']
+2025-07-26 11:34:22,151 - utils - INFO - Successfully converted data types
+2025-07-26 11:34:22,152 - utils - INFO - Final processed DataFrame: 7 rows
+2025-07-26 11:34:22,152 - utils - INFO - Data processed successfully: 7 rows
+2025-07-26 11:34:22,152 - utils - INFO - Splitting data into sections...
+2025-07-26 11:34:22,156 - utils - INFO - Data split into 0 sections: []
+2025-07-26 11:34:22,156 - utils - INFO - Populating Supabase tables...
+2025-07-26 11:34:22,756 - utils - INFO - Supabase connection test successful
+2025-07-26 11:34:22,756 - utils - INFO - Table population completed. Successful: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
+2025-07-26 11:34:22,757 - utils - INFO - All tables processed successfully: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
+2025-07-26 11:34:47,318 - utils - INFO - Table statistics: {'approved': 1, 'bdc_cancel_order': 1, 'bdc_decline': 1, 'brv_checked': 1, 'depot_manager': 1, 'good_standing': 1, 'loaded': 1, 'order_released': 1, 'ordered': 1, 'ppmc_cancel_order': 1, 'depot_manager_decline': 1, 'marked': 1}
+2025-07-26 11:34:47,319 - utils - INFO - === NPA Data Processing completed successfully ===

@@ -183,3 +183,69 @@ connection to server at "aws-0-eu-north-1.pooler.supabase.com" (16.16.102.12), p
 2025-07-26 08:21:50,545 - utils - INFO - Monitoring check completed: 0 new records
 2025-07-26 08:23:25,574 - utils - INFO - Background monitoring stopped
 2025-07-26 08:23:26,480 - utils - INFO - Bot shutdown complete
+2025-07-26 11:37:18,409 - utils - INFO - Table initialization check completed
+2025-07-26 11:37:18,411 - utils - INFO - NPAMonitorBot initialized successfully with Supabase
+2025-07-26 11:37:18,992 - utils - INFO - Supabase connection test successful
+2025-07-26 11:37:18,993 - utils - INFO - Supabase connection verified successfully
+2025-07-26 11:37:18,993 - utils - INFO - Background monitoring started with Supabase backend
+2025-07-26 11:37:18,993 - utils - INFO - Starting NPA Monitor Bot with webhook and Supabase backend...
+2025-07-26 11:37:18,994 - utils - INFO - Started monitoring loop with Supabase backend
+2025-07-26 11:37:18,994 - utils - INFO - Monitoring check #1 started at 26-07-2025 11:37:18
+2025-07-26 11:37:18,994 - utils - INFO - === Starting NPA Data Processing with Supabase ===
+2025-07-26 11:37:32,553 - utils - INFO - Table initialization check completed
+2025-07-26 11:37:33,166 - utils - INFO - Supabase connection test successful
+2025-07-26 11:37:33,166 - utils - INFO - Successfully connected to Supabase
+2025-07-26 11:37:33,166 - utils - INFO - Fetching data from NPA API...
+2025-07-26 11:37:33,166 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 11:38:36,277 - utils - ERROR - API request timed out
+2025-07-26 11:38:36,279 - utils - ERROR - Failed to fetch data: API request timed out
+2025-07-26 11:38:36,279 - utils - ERROR - Exception in main.py execution: object bool can't be used in 'await' expression
+2025-07-26 11:38:36,293 - utils - INFO - === Starting NPA Data Processing with Supabase ===
+2025-07-26 11:38:51,354 - utils - INFO - Table initialization check completed
+2025-07-26 11:38:52,034 - utils - INFO - Supabase connection test successful
+2025-07-26 11:38:52,034 - utils - INFO - Successfully connected to Supabase
+2025-07-26 11:38:52,034 - utils - INFO - Fetching data from NPA API...
+2025-07-26 11:38:52,034 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 11:38:55,614 - utils - INFO - Successfully fetched 146 rows from API
+2025-07-26 11:38:55,614 - utils - INFO - Data fetched successfully: 146 rows
+2025-07-26 11:38:55,614 - utils - INFO - Processing fetched data...
+2025-07-26 11:38:55,615 - utils - INFO - Processing DataFrame with 146 rows and 21 columns
+2025-07-26 11:38:55,633 - utils - INFO - Found 9 BOST-KUMASI records
+2025-07-26 11:38:55,639 - utils - INFO - Renamed columns: ['ORDER_DATE', 'ORDER_NUMBER', 'PRODUCTS', 'VOLUME', 'EX_REF_PRICE', 'BRV_NUMBER', 'BDC']
+2025-07-26 11:38:55,644 - utils - INFO - Successfully converted data types
+2025-07-26 11:38:55,645 - utils - INFO - Final processed DataFrame: 7 rows
+2025-07-26 11:38:55,645 - utils - INFO - Data processed successfully: 7 rows
+2025-07-26 11:38:55,645 - utils - INFO - Splitting data into sections...
+2025-07-26 11:38:55,647 - utils - INFO - Data split into 0 sections: []
+2025-07-26 11:38:55,647 - utils - INFO - Populating Supabase tables...
+2025-07-26 11:38:56,276 - utils - INFO - Supabase connection test successful
+2025-07-26 11:38:56,276 - utils - INFO - Table population completed. Successful: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
+2025-07-26 11:38:56,277 - utils - INFO - All tables processed successfully: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
+2025-07-26 11:39:33,334 - utils - INFO - Table statistics: {'approved': 1, 'bdc_cancel_order': 1, 'bdc_decline': 1, 'brv_checked': 1, 'depot_manager': 1, 'good_standing': 1, 'loaded': 1, 'order_released': 1, 'ordered': 1, 'ppmc_cancel_order': 1, 'depot_manager_decline': 1, 'marked': 1}
+2025-07-26 11:39:33,334 - utils - INFO - === NPA Data Processing completed successfully ===
+2025-07-26 11:39:33,334 - utils - ERROR - Error executing main.py functionalities: object bool can't be used in 'await' expression
+2025-07-26 11:39:33,338 - utils - ERROR - Failed to notify superadmin 987905940: Timed out
+2025-07-26 11:39:33,338 - utils - INFO - Starting new records check with Supabase...
+2025-07-26 11:39:33,339 - utils - INFO - Fetching data for date range: 25-07-2025 to 26-07-2025
+2025-07-26 11:39:36,505 - utils - INFO - Successfully fetched 146 rows from API
+2025-07-26 11:39:36,505 - utils - INFO - Processing DataFrame with 146 rows and 21 columns
+2025-07-26 11:39:36,515 - utils - INFO - Found 9 BOST-KUMASI records
+2025-07-26 11:39:36,519 - utils - INFO - Renamed columns: ['ORDER_DATE', 'ORDER_NUMBER', 'PRODUCTS', 'VOLUME', 'EX_REF_PRICE', 'BRV_NUMBER', 'BDC']
+2025-07-26 11:39:36,522 - utils - INFO - Successfully converted data types
+2025-07-26 11:39:36,523 - utils - INFO - Final processed DataFrame: 7 rows
+2025-07-26 11:39:36,523 - utils - INFO - Processed 7 records from 146 fetched
+2025-07-26 11:39:36,525 - utils - INFO - Split data into 0 sections
+2025-07-26 11:39:38,174 - utils - INFO - Supabase connection test successful
+2025-07-26 11:39:38,174 - utils - INFO - Table population completed. Successful: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
+2025-07-26 11:39:38,174 - utils - INFO - Successfully populated tables: ['approved', 'bdc_cancel_order', 'bdc_decline', 'brv_checked', 'depot_manager', 'good_standing', 'loaded', 'order_released', 'ordered', 'ppmc_cancel_order', 'depot_manager_decline', 'marked']
+2025-07-26 11:39:40,737 - utils - INFO - No new records found
+2025-07-26 11:39:40,737 - utils - INFO - Monitoring check #1 completed: 0 new records found
+2025-07-26 11:39:40,740 - utils - ERROR - Error running bot: Timed out
+2025-07-26 11:39:41,744 - utils - ERROR - Failed to notify superadmin 987905940: Pool timeout: All connections in the connection pool are occupied. Request was *not* sent to Telegram. Consider adjusting the connection pool size or the pool timeout.
+2025-07-26 11:39:41,744 - utils - INFO - Starting bot shutdown process...
+2025-07-26 11:39:41,744 - utils - INFO - Background monitoring stopped
+2025-07-26 11:39:41,745 - utils - INFO - Monitoring loop cancelled
+2025-07-26 11:39:41,745 - utils - INFO - Monitoring loop stopped
+2025-07-26 11:39:45,273 - utils - INFO - Notified superadmin 987905940 with message: ⚠️ Error executing main.py functionalities: object bool can't be used in 'await' expression
+2025-07-26 11:39:46,087 - utils - INFO - Webhook deleted successfully
+2025-07-26 11:39:46,087 - utils - ERROR - Error during shutdown: This Updater is not running!

@@ -324,20 +324,6 @@ CREATE TABLE marked_history (
     archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- New records tracking table (specifically for depot_manager)
-CREATE TABLE depot_manager_new_records (
-    id SERIAL PRIMARY KEY,
-    order_date TIMESTAMP,
-    order_number VARCHAR(100),
-    products VARCHAR(200),
-    volume INTEGER,
-    ex_ref_price FLOAT,
-    brv_number VARCHAR(100),
-    bdc VARCHAR(200),
-    record_hash VARCHAR(64),
-    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Create indexes for better performance
 CREATE INDEX idx_approved_brv ON approved(brv_number);
 CREATE INDEX idx_approved_date ON approved(order_date);
@@ -391,10 +377,6 @@ CREATE INDEX idx_marked_hash ON marked(record_hash);
 CREATE INDEX idx_depot_manager_history_hash ON depot_manager_history(record_hash);
 CREATE INDEX idx_depot_manager_history_archived ON depot_manager_history(archived_at);
 
--- New records table indexes
-CREATE INDEX idx_depot_manager_new_records_detected ON depot_manager_new_records(detected_at);
-CREATE INDEX idx_depot_manager_new_records_brv ON depot_manager_new_records(brv_number);
-
 -- Enable RLS on all tables for security
 ALTER TABLE approved ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bdc_cancel_order ENABLE ROW LEVEL SECURITY;
@@ -446,9 +428,5 @@ FOR ALL USING (auth.role() = 'service_role');
 CREATE POLICY "Enable all operations for service role" ON marked
 FOR ALL USING (auth.role() = 'service_role');
 
--- History and new records tables
 CREATE POLICY "Enable all operations for service role" ON depot_manager_history
-FOR ALL USING (auth.role() = 'service_role');
-
-CREATE POLICY "Enable all operations for service role" ON depot_manager_new_records
 FOR ALL USING (auth.role() = 'service_role');
