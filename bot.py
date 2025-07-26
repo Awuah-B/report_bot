@@ -742,7 +742,7 @@ Please add me to a group chat and use the commands there.
             await self.application.initialize()
             await self.application.start()
             
-            webhook_url = f"https://report-bot-01yl.onrender.com/{self.bot_token}"
+            webhook_url = f"https://report-bot-cs7g.onrender.com/{self.bot_token}"
             await self.application.bot.set_webhook(
                 url=webhook_url,
                 allowed_updates=Update.ALL_TYPES
