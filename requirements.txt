@@ -10,6 +10,7 @@ openpyxl>=3.1.0  # Required for pandas Excel support
 xlrd >= 2.0.1
 python-telegram-bot[webhooks]
 aiohttp
-pydantic
+pydantic>=2.0
+pydantic-settings>=2.0
 backoff
 # Optional dependencies
