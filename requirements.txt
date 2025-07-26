@@ -11,4 +11,5 @@ xlrd >= 2.0.1
 python-telegram-bot[webhooks]
 aiohttp
 pydantic
+backoff
 # Optional dependencies

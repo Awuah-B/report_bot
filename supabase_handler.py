@@ -22,6 +22,7 @@ import contextlib
 from typing import Dict, Tuple, List, Optional, AsyncGenerator
 from utils import setup_logging
 import traceback
+import backoff
 
 logger = setup_logging('supabase_handler.log')
 
@@ -134,6 +135,7 @@ class RealtimeListener:
         self._subscriptions = {}
         self._websocket = None
         self._listener_task = None
+        self._active = False
         
     async def subscribe(self, table_name: str, callback: callable) -> None:
         """Subscribe to table changes with callback"""
@@ -141,52 +143,103 @@ class RealtimeListener:
             self._subscriptions[table_name] = []
             
         self._subscriptions[table_name].append(callback)
+        logger.info(f"Subscribed to real-time updates for table {table_name}")
         
         if not self._listener_task:
+            self._active = True
             self._listener_task = asyncio.create_task(self._start_listener())
     
+    @backoff.on_exception(backoff.expo, Exception, max_tries=8, max_time=300)
     async def _start_listener(self) -> None:
-        """Initialize websocket connection and start listening"""
+        """Initialize websocket connection and start listening with exponential backoff"""
+        if not self._active:
+            logger.info("Real-time listener stopped")
+            return
+            
         try:
             url = os.getenv('SUPABASE_REALTIME_URL', 
                            os.getenv('SUPABASE_URL').replace('https', 'wss').replace('http', 'ws') + '/realtime/v1')
+            key = os.getenv('SUPABASE_ANON_KEY')
+            
+            if not url or not key:
+                raise ConfigurationError("Missing Supabase credentials for real-time")
+                
+            headers = {
+                'apikey': key,
+                'Authorization': f'Bearer {key}'
+            }
             
             async with aiohttp.ClientSession() as session:
-                self._websocket = await session.ws_connect(url)
-                
-                # Subscribe to all tables we have callbacks for
-                for table in self._subscriptions.keys():
-                    subscribe_msg = {
-                        'topic': table,
-                        'event': 'phx_join',
-                        'payload': {},
-                        'ref': '1'
-                    }
-                    await self._websocket.send_json(subscribe_msg)
-                
-                # Listen for messages
-                async for msg in self._websocket:
-                    if msg.type == aiohttp.WSMsgType.TEXT:
-                        data = json.loads(msg.data)
-                        self._handle_realtime_message(data)
-                    elif msg.type == aiohttp.WSMsgType.ERROR:
-                        logger.error("WebSocket connection error")
-                        break
-                        
+                logger.info(f"Connecting to Supabase WebSocket at {url}")
+                async with session.ws_connect(url, headers=headers) as ws:
+                    self._websocket = ws
+                    logger.info("WebSocket connection established")
+                    
+                    # Subscribe to all tables
+                    for table in self._subscriptions.keys():
+                        subscribe_msg = {
+                            'topic': f"realtime:public:{table}",
+                            'event': 'phx_join',
+                            'payload': {},
+                            'ref': str(hash(table))
+                        }
+                        await ws.send_json(subscribe_msg)
+                        logger.debug(f"Sent subscription request for {table}")
+                    
+                    # Listen for messages
+                    async for msg in ws:
+                        if msg.type == aiohttp.WSMsgType.TEXT:
+                            data = json.loads(msg.data)
+                            self._handle_realtime_message(data)
+                        elif msg.type == aiohttp.WSMsgType.ERROR:
+                            logger.error("WebSocket connection error")
+                            raise Exception("WebSocket error")
+                        elif msg.type == aiohttp.WSMsgType.CLOSED:
+                            logger.warning("WebSocket connection closed")
+                            raise Exception("WebSocket closed")
+                            
         except Exception as e:
             logger.error(f"Realtime listener error: {str(e)}")
-            await asyncio.sleep(5)  # Wait before reconnecting
-            self._listener_task = asyncio.create_task(self._start_listener())
+            if self._active:
+                logger.info("Attempting to reconnect WebSocket...")
+                raise  # Trigger backoff
+            else:
+                logger.info("Real-time listener stopped")
     
     def _handle_realtime_message(self, data: Dict) -> None:
         """Process incoming realtime messages"""
-        if data.get('event') == 'INSERT':
-            table = data.get('topic')
-            record = data.get('payload', {}).get('record')
-            
-            if table and record and table in self._subscriptions:
-                for callback in self._subscriptions[table]:
-                    asyncio.create_task(callback(table, record))
+        try:
+            if data.get('event') == 'INSERT':
+                topic = data.get('topic', '')
+                if topic.startswith('realtime:public:'):
+                    table = topic[len('realtime:public:'):]
+                    record = data.get('payload', {}).get('record')
+                    if table and record and table in self._subscriptions:
+                        logger.debug(f"Received INSERT for table {table}: {record}")
+                        for callback in self._subscriptions[table]:
+                            asyncio.create_task(callback(table, record))
+        except Exception as e:
+            logger.error(f"Error processing real-time message: {str(e)}")
+    
+    async def unsubscribe(self, table_name: str) -> None:
+        """Unsubscribe from a specific table"""
+        if table_name in self._subscriptions:
+            del self._subscriptions[table_name]
+            logger.info(f"Unsubscribed from real-time updates for table {table_name}")
+            if self._websocket and not self._subscriptions:
+                await self.stop()
+    
+    async def stop(self) -> None:
+        """Stop the listener and close WebSocket"""
+        self._active = False
+        if self._listener_task:
+            self._listener_task.cancel()
+            self._listener_task = None
+        if self._websocket:
+            await self._websocket.close()
+            self._websocket = None
+        self._subscriptions.clear()
+        logger.info("Real-time listener stopped")
 
 class SupabaseHandler:
     """Main handler for Supabase database operations with performance optimizations"""
@@ -470,6 +523,7 @@ class SupabaseHandler:
     
     async def close(self) -> None:
         """Cleanup resources"""
+        await self.realtime.stop()
         await self.conn_manager.close_all()
         for task in self._background_tasks:
             task.cancel()
